@@ -1,20 +1,20 @@
-import argparse
-import os
+from flask import Blueprint, render_template, request, send_from_directory, Response
 import cv2
+import os
 import time
-from flask import render_template, request, send_from_directory, Response
 from ultralytics import YOLO
-from app import app
 
-@app.route("/about")
+main_bp = Blueprint('main', __name__)
+
+@main_bp.route("/about")
 def about():
     return render_template('about.html')
 
-@app.route("/")
+@main_bp.route("/")
 def hello_world():
     return render_template('index.html')
 
-@app.route("/", methods=["GET", "POST"])
+@main_bp.route("/", methods=["GET", "POST"])
 def predict_img():
     if request.method == "POST":
         if 'file' in request.files:
@@ -55,7 +55,7 @@ def predict_img():
     image_path = folder_path + '/' + latest_subfolder + '/' + f.filename
     return render_template('index.html', image_path=image_path)
 
-@app.route('/<path:filename>')
+@main_bp.route('/<path:filename>')
 def display(filename):
     folder_path = 'runs/detect'
     subfolders = [f for f in os.listdir(folder_path) if os.path.isdir(os.path.join(folder_path, f))]
@@ -88,13 +88,6 @@ def get_frame():
                b'Content-Type: image/jpeg\r\n\r\n' + jpeg.tobytes() + b'\r\n\r\n')   
         time.sleep(0.1)
 
-@app.route("/video_feed")
+@main_bp.route("/video_feed")
 def video_feed():
     return Response(get_frame(), mimetype='multipart/x-mixed-replace; boundary=frame')
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Flask app exposing yolov9 models")
-    parser.add_argument("--port", default=10000, type=int, help="port number")
-    args = parser.parse_args()
-    model = YOLO('yolov9c.pt')
-    app.run(host="0.0.0.0", port=args.port)
