@@ -1,7 +1,7 @@
 services:
   - type: web
-    name: anima-detection
+    name: Anima-detection
     env: python
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "python anima-detection/app.py"
+    startCommand: "gunicorn app.main:app"
     plan: free
