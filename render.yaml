@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: anima-detection
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python anima-detection/app.py"
+    plan: free
